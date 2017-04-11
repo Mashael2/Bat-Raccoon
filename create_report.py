@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-import datetime
+# import datetime
 
 
 def convertBegDate(date):
@@ -33,15 +33,21 @@ def createRepo(begDate, endDate):
     """
     Create report of transactions
     """
-    newBegDate = convertBegDate(begDate)
-    newEndDate = convertEndDate(endDate)
+    # newBegDate = convertBegDate(begDate)
+    # newEndDate = convertEndDate(endDate)
 
 
 def main():
     """
     Test Function.
     """
-
+    beg = sys.argv[1]
+    end = sys.argv[2]
+    createRepo(beg, end)
+    name = "company_trans_"+beg+"_"+end+".dat"
+    myFile = open(name, 'w')
+    myFile.close()
+    exit(0)
 
 if __name__ == "__main__":
     # Call Main
