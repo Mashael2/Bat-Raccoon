@@ -29,7 +29,7 @@ def convertEndDate(date):
     return date
 
 
-def createRepo(begDate, endDate):
+def createRepo(beg, end):
     """
     Create report of transactions
     """
