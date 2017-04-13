@@ -4,8 +4,10 @@ import sqlite3
 import datetime
 
 def isInt(v):
-    try:    i = int(v)
-    except:  return False
+    try:
+        i = int(v)
+    except:
+        return False
     return True
 
 def convertBegDate(date):
@@ -61,6 +63,7 @@ def createReport(begDate, endDate, cur):
     # convert date to correct format and error check
     newBegDate = convertBegDate(begDate)
     newEndDate = convertEndDate(endDate)
+    # print("New dates beg: {} end: {}".format(newBegDate, newEndDate))
     # query DB
     query = """
             SELECT
@@ -69,20 +72,24 @@ def createReport(begDate, endDate, cur):
                 INNER JOIN trans_line TL ON T.trans_id = TL.trans_id
                 INNER JOIN products P ON P.prod_num = TL.prod_num
             WHERE
-                T.trans_date > """+newBegDate+"""AND T.trans_date < """+newEndDate+"""
+                T.trans_date >= ? AND T.trans_date <= ?
             GROUP BY
-                T.trans_id, T.trans_date, T.card_num, P.prod_num"""
-    cur.execute(query)
+                T.trans_id, T.trans_date, T.card_num, P.prod_num
+            """
+    cur.execute(query, (newBegDate, newEndDate))
     # check that query is not empty
     # if empty exit(2) else continue
     try:
         recs = cur.fetchall()
+        if(len(recs) == 0):
+            exit(2)
     except:
         exit(2)
     # Read through query by each row and store the data some how
     # Then filter the data so that this  next file will output in the correct
     # format
-
+    for row in recs:
+        print(row)
     # Create the output file
     name = "company_trans_"+begDate+"_"+endDate+".dat"
     myFile = open(name, 'w')
