@@ -1,16 +1,41 @@
-#!/bin/bash - 
+#!/bin/bash -
 #===============================================================================
 #
 #          FILE: run_report.sh
-# 
-#         USAGE: ./run_report.sh 
-# 
-#   DESCRIPTION: Bash script is a wrapper that takes in terminal input parameters
-#                and options. They are validated to be correct and uses them to 
-#                call create_report.py to generate a report into sqlite3 DB
-#                create_report.py has it's exit codes evaluated and this script
-#                will email the customer an email corresponding to the return code
-# 
+#
+#         USAGE: ./run_report.sh
+#
+#   DESCRIPTION:
+#
+#       Bash script is a wrapper that takes in terminal input parameters and options.
+#
+#       Options are validated to be correct and sets user, pass, email, begin,
+#       and end variables to parameters passed.
+#
+#       The parameters are checked to validate that they are not null or empty.
+#
+#       Then call create_report.py to generate a report into sqlite3 DB:
+#           create_report.py has it's exit codes evaluated and this script will 
+#           email the customer an email corresponding to the return code
+#           If create report returns a 2:
+#               the user is emailed that there are no transactions between
+#               specified dates
+#           If create report returns a 1:
+#               the user is emailed that the input parameters for the
+#               dates was an incorrect formT
+#           If create report retruns a 0:
+#               the program compresses the report into a zip file
+#               the zip file uses ftp binary transfer to send the zip to the
+#               server @ var ftpAddr declared as a global at the top
+#
+#               IF the ftp transfer completes successfully with the users name
+#               and password:
+#                   an email is sent to the user that the transfer was successfully
+#               Else
+#                   a message is displayed that ftp transfer failed,
+#                   and the user is emailed that it failed due to user/password
+#
+#
 #       OPTIONS: ---
 #  REQUIREMENTS: ---
 #          BUGS: ---
@@ -24,7 +49,7 @@
 #set -o nounset                              # Treat unset variables as an error
 
 
-ftpAddr="137.190.19.99"     # create ftpAddr 
+ftpAddr="137.190.19.99"     # create ftpAddr
 
 # How script is used
 usage()
