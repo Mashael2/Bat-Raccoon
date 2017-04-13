@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys
 import sqlite3
-import datetime
 
 def isInt(v):
     try:
@@ -65,10 +64,11 @@ def createReport(begDate, endDate, cur):
     newEndDate = convertEndDate(endDate)
     print("Getting transaction from {} to {}".format(newBegDate, newEndDate))
     print("")
+    # print("New dates beg: {} end: {}".format(newBegDate, newEndDate))
     # query DB
     query = """
             SELECT
-                T.trans_id, T.trans_date, T.card_num, P.prod_num, TL.qty, TL.amt
+                T.trans_id, T.trans_date, T.card_num, P.prod_num, P.prod_desc, TL.qty, TL.amt
             FROM trans T
                 INNER JOIN trans_line TL ON T.trans_id = TL.trans_id
                 INNER JOIN products P ON P.prod_num = TL.prod_num
@@ -86,17 +86,69 @@ def createReport(begDate, endDate, cur):
             exit(2)
     except:
         exit(2)
-    # Read through query by each row and store the data some how
-    # Then filter the data so that this  next file will output in the correct
-    # format
+    # Read through query by each row and store the data in a dictionary
+    # data is formated into key value pairs so we can format the output
+    # when writing to the output file
+    myDict = {}
+    # print("trans_id , trans_date, card_num, prod_num, prod_desc, qty, amt")
     for row in recs:
-        print(row)
+        # print(row)
+        key = ""
+        key += formatTransId(row[0])
+        key += formatDate(row[1])
+        key += formatCreditCard(row[2])
+        # print("Key: ",key)
+        myDict[key] = []
+    for row in recs:
+        # print(row)
+        key = ""
+        key += formatTransId(row[0])
+        key += formatDate(row[1])
+        key += formatCreditCard(row[2])
+        val = ""
+        val += formatQty(row[5])
+        val += formatAmt(row[6])
+        val += row[4]
+        # print("Val: ",val)
+        myDict[key].append(val)
+    # Now add zeros to places that dont have a 1st-3rd product
+    for key in myDict:
+        length = len(myDict[key])
+        if length == 0:
+            myDict[key].append("00000000")
+            myDict[key].append("00000000")
+            myDict[key].append("00000000")
+        if length == 1:
+            myDict[key].append("00000000")
+            myDict[key].append("00000000")
+        if length == 2:
+            myDict[key].append("00000000")
+    # Now sum the total amounts for each key and append it to the end of their
+    # value
+    tot = 0
+    for key in myDict:
+        tot = 0
+        for val in myDict[key]:
+            sval = str(val)
+            tot += int(sval[2:6])
+        tot = formatTotal(tot)
+        myDict[key].append(tot)
+
     # Create the output file
     name = "company_trans_"+begDate+"_"+endDate+".dat"
     myFile = open(name, 'w')
-
-    # Input/write formatted data into myFile
-
+    # Input/write formatted data into myFile / output file
+    for  key in myDict:
+        count = 0
+        line = key
+        for val in myDict[key]:
+            if count == 0:
+                line += str(val)
+            else:
+                line += "\t"+str(val)
+            count += 1
+        myFile.write(line+"\n")
+        print("["+line+"]")
     # Close the writing to output file
     myFile.close()
 
@@ -108,7 +160,7 @@ def main():
     # Create connection
     conn = sqlite3.connect('hw8SQLite.db')
     if(not conn):
-        exit(3)
+        exit(1)
     # Create cursor
     cur = conn.cursor()
     # Read in date params
