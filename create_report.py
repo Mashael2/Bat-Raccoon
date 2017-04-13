@@ -153,6 +153,56 @@ def createReport(begDate, endDate, cur):
     myFile.close()
 
 
+def formatTransId(transId):
+    trans = str(transId)
+    length = len(trans)
+    if length < 5:
+        trans = "0" * (5-length) + trans
+    # print("Trans: ",trans )
+    return trans
+
+
+
+def formatDate(date):
+    fdate = date[:4]+date[5:7]+date[8:10]+date[11:13]+date[14:16]
+    fdate = str(fdate)
+    # print("Date: ", date)
+    return fdate
+
+
+def formatCreditCard(card):
+    lastSix = card[len(card)-6:]
+    lastSix = str(lastSix)
+    # print("Last six: ", lastSix)
+    return lastSix
+
+
+def formatQty(qty):
+    fqty = int(qty)
+    fqty = str(fqty)
+    length = len(fqty)
+    if length < 2:
+        fqty = "0"+fqty
+    # print("Qty: ",fqty )
+    return fqty
+
+
+def formatAmt(amt):
+    famt = str(amt)
+    famt = famt.replace(".", "")
+    length = len(famt)
+    if length < 6:
+        famt = "0" * (6-length) + famt
+    # print("Amt: ", famt)
+    return famt
+
+def formatTotal(total):
+    ftot = str(total)
+    length = len(ftot)
+    if length < 6:
+        ftot = "0" * (6-length) + ftot
+    return ftot
+
 def main():
     """
     Test Function.
