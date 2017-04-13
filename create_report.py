@@ -2,7 +2,6 @@
 import sys
 import sqlite3
 import datetime
-import time
 
 def isInt(v):
     try:    i = int(v)
@@ -49,20 +48,48 @@ def convertEndDate(date):
     return date
 
 
-def createReport(begDate, endDate):
+def createReport(begDate, endDate, cur):
     """
     Create report of transactions
+    Arg:
+        begDate => beginning date to query
+        endDate => end date to query
+        cur => db cursor
+    Returns:
+        nothing
     """
     # convert date to correct format and error check
     newBegDate = convertBegDate(begDate)
     newEndDate = convertEndDate(endDate)
     # query DB
-
+    query = """
+            SELECT
+                T.trans_id, T.trans_date, T.card_num, P.prod_num, TL.qty, TL.amt
+            FROM trans T
+                INNER JOIN trans_line TL ON T.trans_id = TL.trans_id
+                INNER JOIN products P ON P.prod_num = TL.prod_num
+            WHERE
+                T.trans_date > """+newBegDate+"""AND T.trans_date < """+newEndDate+"""
+            GROUP BY
+                T.trans_id, T.trans_date, T.card_num, P.prod_num"""
+    cur.execute(query)
     # check that query is not empty
     # if empty exit(2) else continue
+    try:
+        recs = cur.fetchall()
+    except:
+        exit(2)
+    # Read through query by each row and store the data some how
+    # Then filter the data so that this  next file will output in the correct
+    # format
 
+    # Create the output file
     name = "company_trans_"+begDate+"_"+endDate+".dat"
     myFile = open(name, 'w')
+
+    # Input/write formatted data into myFile
+
+    # Close the writing to output file
     myFile.close()
 
 
@@ -70,10 +97,23 @@ def main():
     """
     Test Function.
     """
+    # Create connection
+    conn = sqlite3.connect('hw8SQLite.db')
+    if(conn):
+        print("Connected to DB");
+    else:
+        print("Could not connect to DB")
+        exit(1)
+    # Create cursor
+    cur = conn.cursor()
+    # Read in date params
     beg = sys.argv[1]
     end = sys.argv[2]
-    createReport(beg, end)
-
+    # Create Report
+    createReport(beg, end, cur)
+    # Close cursor and DB connection
+    cur.close()
+    conn.close()
 
 if __name__ == "__main__":
     # Call Main
