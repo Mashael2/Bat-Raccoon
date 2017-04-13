@@ -63,7 +63,8 @@ def createReport(begDate, endDate, cur):
     # convert date to correct format and error check
     newBegDate = convertBegDate(begDate)
     newEndDate = convertEndDate(endDate)
-    # print("New dates beg: {} end: {}".format(newBegDate, newEndDate))
+    print("Getting transaction from {} to {}".format(newBegDate, newEndDate))
+    print("")
     # query DB
     query = """
             SELECT
@@ -106,11 +107,8 @@ def main():
     """
     # Create connection
     conn = sqlite3.connect('hw8SQLite.db')
-    if(conn):
-        print("Connected to DB");
-    else:
-        print("Could not connect to DB")
-        exit(1)
+    if(not conn):
+        exit(3)
     # Create cursor
     cur = conn.cursor()
     # Read in date params

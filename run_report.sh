@@ -120,13 +120,9 @@ compressAndTransfer()
 {
     file="company_trans_$begin"_"$end.dat"
     zipName="company_trans_$begin"_"$end.zip"
-
-    # echo "File: $file"
-    # echo "ZipName: $zipName"
-
-    zip $zipName $file
     ftplog=$PWD/ftp.log
-
+    zip $zipName $file > ftplog
+    echo ""
     # ftp into ftpAddr
     ftp -nv $ftpAddr <<EOF > $ftplog
     quote user $user
@@ -136,12 +132,13 @@ compressAndTransfer()
     bye
 EOF
 
-    grep "230 Login successful" $ftplog
     grep "226 Transfer complete" $ftplog
     rcode=$?
     # echo "FTP return code: $rcode"
     if [[ $rcode -eq 0 ]]
     then
+        echo ""
+        echo "Disconnected from $user"
         echo "Your output file is $zipName"
         # echo "Successful FTP"
         `rm $ftplog`
@@ -150,9 +147,9 @@ EOF
     return "$rcode"
 }
 
-
 # Call create_report.py and check return codes
-echo "Getting transactions from $begin to $end"
+echo ""
+echo "Connected to $user"
 ./create_report.py $begin $end
 rc=$?     # rc is the return code that we get from calling create report 
 # echo "Create report return code: $rc"
@@ -187,6 +184,7 @@ else
     exit 4
 fi
 
+rm -r $PWD/ftplog
 
 exit 0
 
